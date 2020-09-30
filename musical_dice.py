@@ -7,20 +7,47 @@ from pydub import AudioSegment
 import random
 import simpleaudio
 
-SECONDS = random.randint(3, 6)
+SECONDS = random.randint(5, 8)
 
+# SONG1 MIXED WITH SONG2
+# SONG3 MIXED WITH SONG4
 BASE = './wav/'
 SONG1 = BASE + 'centimeter.wav'
 SONG2 = BASE + 'gurenge.wav'
-SONG3 = BASE + 'memento.wav'
+SONG3 = BASE + 'centimeter.wav'
+SONG4 = BASE + 'above.wav'
 
-for song, letter in zip([SONG1, SONG2, SONG3], ['M', 'T', 'Q']):
-    old = AudioSegment.from_wav(song)
-    for i in range(1, 177):
-        t1 = (i-1) * 1000 #Works in milliseconds
-        t2 = (i+(SECONDS-1)) * 1000
-        newAudio = old[t1:t2]
-        newAudio.export(f'{letter}{i}.wav', format="wav")
+old1 = AudioSegment.from_wav(SONG1)
+old2 = AudioSegment.from_wav(SONG2)
+for i in range(1, 177):
+    t1 = (i-1) * 1000 #Works in milliseconds
+    t2 = (i+(SECONDS-1)) * 1000
+    newAudio1 = old1[t1:t2]
+    newAudio2 = old2[t1:t2]
+    newAudio1.export(f'M{i}.wav', format="wav")
+    newAudio2.export(f'Q{i}.wav', format="wav")
+
+old1 = AudioSegment.from_wav(SONG3)
+old2 = AudioSegment.from_wav(SONG4)
+for i in range(1, 177):
+    t1 = (i-1) * 1000 #Works in milliseconds
+    t2 = (i+(SECONDS-1)) * 1000
+    newAudio1 = old1[t1:t2]
+    newAudio2 = old2[t1:t2]
+    newAudio1.export(f'T{i}.wav', format="wav")
+    newAudio2.export(f'R{i}.wav', format="wav")
+
+for i in range(1, 177):
+    old1 = AudioSegment.from_file(f'M{i}.wav', format='wav')
+    old2 = AudioSegment.from_file(f'Q{i}.wav', format='wav')
+    mixed = old1.overlay(old2)
+    mixed.export(f'M{i}.wav', format='wav')
+
+for i in range(1, 177):
+    old1 = AudioSegment.from_file(f'T{i}.wav', format='wav')
+    old2 = AudioSegment.from_file(f'R{i}.wav', format='wav')
+    mixed = old1.overlay(old2)
+    mixed.export(f'T{i}.wav', format='wav')
 
 
 # Each of these lists corresponds to one column of the table used for the minuet
@@ -76,27 +103,6 @@ trio_table = [tm01, tm02, tm03, tm04, tm05, tm06, tm07, tm08,
               tm09, tm10, tm11, tm12, tm13, tm14, tm15, tm16]
 # This table contains all of the columns of the trio portion of Mozart's
 # Musical Dice Game in order.
-
-qm01 = [None, None, '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
-qm02 = [None, None, '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22']
-qm03 = [None, None, "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33"]
-qm04 = [None, None, "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44"]
-qm05 = [None, None, "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55"]
-qm06 = [None, None, "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66"]
-qm07 = [None, None, "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77"]
-qm08 = [None, None, "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88"]
-qm09 = [None, None, "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
-qm10 = [None, None, "100", "101", "102", "103", "104", "105", "106", "107", "108", "109", "110"]
-qm11 = [None, None, "111", "112", "113", "114", "115", "116", "117", "118", "119", "120", "121"]
-qm12 = [None, None, "122", "123", "124", "125", "126", "127", "128", "129", "130", "131", "132"]
-qm13 = [None, None, "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143"]
-qm14 = [None, None, "144", "145", "146", "147", "148", "149", "150", "151", "152", "153", "154"]
-qm15 = [None, None, "155", "156", "157", "158", "159", "160", "161", "162", "163", "164", "165"]
-qm16 = [None, None, "166", "167", "168", "169", "170", "171", "172", "173", "174", "175", "176"]
-
-quad_table = [qm01, qm02, qm03, qm04, qm05, qm06, qm07, qm08,
-              qm09, qm10, qm11, qm12, qm13, qm14, qm15, qm16]
-
 # This table contains all of the columns of the trio portion of Mozart's
 # Musical Dice Game in order.
 # This function takes a string as an argument and constructs a string that names
@@ -140,17 +146,14 @@ def construct_waltz():
     while marker < 16:
         k = minuet_table[marker]
         kk = trio_table[marker]
-        kk_nevermind = quad_table[marker]
 
         a = k[roll_dice(2)]
         aa = kk[roll_dice(2)]
-        aaa = kk_nevermind[roll_dice(2)]
 
         mfilename = minuet_filename(a)
         tfilename = trio_filename(aa)
-        qfilename = quad_filename(aaa)
 
-        temp = [mfilename, tfilename, qfilename]
+        temp = [mfilename, tfilename]
         random.shuffle(temp)
 
         tlist.extend(temp)
